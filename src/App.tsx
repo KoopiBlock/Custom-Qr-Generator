@@ -11,6 +11,7 @@ import QRCodeStyling, {
   Extension,
   Options
 } from "qr-code-styling";
+import { read } from "fs";
 
 export default function App() {
   
@@ -68,14 +69,26 @@ export default function App() {
     qrCode.update(options);
   }, [qrCode, options]);
 
+
+
+
+
   const onImageSelect = (event:any) => {
     const selectedImage = event.currentTarget.files
-    const imageUrl = URL.createObjectURL(selectedImage[0])
-     
-    setOptions(options => ({
-      ...options,
-      image: imageUrl
-    }))
+    if (selectedImage) {
+      const imageRef = selectedImage[0] || ''
+      const fileType: string= imageRef.type || ""
+      const reader = new FileReader()
+      reader.readAsBinaryString(imageRef)
+      reader.onload = (event: any) => {
+        const imageData = `data:${fileType};base64,${btoa(event.target.result)}`
+        setOptions(options => ({
+          ...options,
+          image: imageData
+        }))
+      }
+    }
+
   }
 
   const onColorSelect = (event:any) => {
@@ -108,6 +121,12 @@ export default function App() {
       }
     }))
   }
+
+  useEffect(() => {
+    console.log('hi')
+  }, [onColorSelect])
+  
+  
 
   const onDataChange = (event: ChangeEvent<HTMLInputElement>) => {
     setOptions(options => ({
